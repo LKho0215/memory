@@ -192,43 +192,60 @@ const FloatingMemories = ({ onFocus }: FloatingMemoriesProps) => {
                         top: '50%',
                         right: '10%',
                         transform: 'translateY(-50%)',
-                        width: '300px',
-                        padding: '2rem',
-                        background: 'rgba(0, 0, 0, 0.6)',
-                        border: '1px solid rgba(255, 215, 0, 0.3)', // Gold border
-                        backdropFilter: 'blur(10px)',
-                        borderRadius: '16px',
+                        width: '350px',
+                        padding: '2.5rem',
+                        background: 'rgba(20, 5, 10, 0.7)', // darker rose tint
+                        border: '1px solid rgba(255, 100, 150, 0.3)', // Pinkish gold border
+                        boxShadow: '0 0 30px rgba(255, 50, 100, 0.2)',
+                        backdropFilter: 'blur(12px)',
+                        borderRadius: '24px',
                         color: 'white',
-                        fontFamily: 'sans-serif',
-                        textAlign: 'left',
-                        pointerEvents: 'auto', // Allow text selection/interaction
-                        animation: 'fadeInSlide 0.5s ease-out'
+                        fontFamily: "'Playfair Display', serif",
+                        textAlign: 'center', // Centered for more poetic feel
+                        pointerEvents: 'auto',
+                        animation: 'fadeInSlide 0.8s ease-out'
                     }}>
                         <style>{`
                             @keyframes fadeInSlide {
-                                from { opacity: 0; transform: translate(20px, -50%); }
+                                from { opacity: 0; transform: translate(30px, -50%); }
                                 to { opacity: 1; transform: translate(0, -50%); }
                             }
                         `}</style>
                         <h2 style={{
                             marginTop: 0,
-                            color: '#ffcc00', // Gold title
-                            fontSize: '1.5rem',
-                            borderBottom: '1px solid rgba(255,255,255,0.2)',
-                            paddingBottom: '0.5rem'
+                            fontFamily: "'Great Vibes', cursive",
+                            color: '#ff99bb', // Soft Pink
+                            fontSize: '3.5rem',
+                            fontWeight: 'normal',
+                            marginBottom: '1rem',
+                            textShadow: '0 0 10px rgba(255, 100, 150, 0.5)'
                         }}>
                             {MEMORY_DATA[activeIndex % MEMORY_DATA.length].title}
                         </h2>
-                        <p style={{ lineHeight: '1.6', fontSize: '1rem', color: '#eee', minHeight: '60px' }}>
+                        <div style={{
+                            width: '50px',
+                            height: '2px',
+                            background: 'linear-gradient(90deg, transparent, #ff99bb, transparent)',
+                            margin: '0 auto 1.5rem auto'
+                        }} />
+                        <p style={{
+                            lineHeight: '1.8',
+                            fontSize: '1.2rem',
+                            color: '#fff0f5',
+                            minHeight: '60px',
+                            fontStyle: 'italic'
+                        }}>
                             "<TypewriterText text={MEMORY_DATA[activeIndex % MEMORY_DATA.length].description} active={true} />"
                         </p>
                         <div style={{
-                            marginTop: '1rem',
-                            fontSize: '0.8rem',
-                            color: '#888',
-                            fontStyle: 'italic'
+                            marginTop: '2rem',
+                            fontSize: '0.9rem',
+                            color: '#aa8899',
+                            fontFamily: 'sans-serif',
+                            letterSpacing: '1px',
+                            textTransform: 'uppercase'
                         }}>
-                            Click card again to close
+                            Click card to close
                         </div>
                     </div>
                 </Html>

@@ -5,14 +5,27 @@ import { Vector3, MathUtils } from 'three'
 import StarField from './StarField'
 import GiftBox from './GiftBox'
 import FloatingMemories from './FloatingMemories'
+import HeartParticles from './HeartParticles'
 import { EffectComposer, Bloom } from '@react-three/postprocessing'
 
-const CameraRig = ({ viewMode }: { viewMode: 'default' | 'gift' | 'memory' }) => {
+const CameraRig = ({ viewMode, started }: { viewMode: 'default' | 'gift' | 'memory', started: boolean }) => {
     const { controls } = useThree() as any
     const returnTarget = useRef<{ pos: Vector3, look: Vector3 } | null>(null)
+    const flyInDone = useRef(false)
 
     useFrame((state, delta) => {
-        const step = delta * 2
+        // Slow down the fly-in slightly for grandeur
+        const step = delta * 1.5
+
+        // ENTRY ANIMATION
+        if (!started) {
+            // Keep camera far away waiting
+            const waitingPos = new Vector3(0, 5, 50)
+            state.camera.position.lerp(waitingPos, step)
+            // Slowly rotate around center while waiting
+            state.camera.position.x = Math.sin(state.clock.elapsedTime * 0.2) * 5
+            return
+        }
 
         if (viewMode !== 'default') {
             // 1. Capture current state if we haven't yet (and we came from default)
@@ -38,7 +51,11 @@ const CameraRig = ({ viewMode }: { viewMode: 'default' | 'gift' | 'memory' }) =>
                 controls.update()
             }
         } else {
-            // Return to previous view if saved
+            // Default View - but consider "Entry" transition
+            // If we just started, we are flying in from Z=50 to Z=15
+            const defaultPos = new Vector3(0, 0, 15)
+
+            // Return to previous view if saved (from gift/memory mode)
             if (returnTarget.current) {
                 state.camera.position.lerp(returnTarget.current.pos, step)
                 if (controls) {
@@ -46,9 +63,19 @@ const CameraRig = ({ viewMode }: { viewMode: 'default' | 'gift' | 'memory' }) =>
                     controls.update()
                 }
 
-                // Release control once close enough
                 if (state.camera.position.distanceTo(returnTarget.current.pos) < 0.5) {
                     returnTarget.current = null
+                }
+            }
+            // Only force fly-in if NOT done yet
+            else if (!flyInDone.current) {
+                // Normal operation / Fly-in completion
+                // This lerp handles the fly-in from Z=50 seamlessly because default target is Z=15
+                state.camera.position.lerp(defaultPos, step) // Smooth fly in
+
+                // Unlock controls once close enough
+                if (state.camera.position.distanceTo(defaultPos) < 1.0) {
+                    flyInDone.current = true
                 }
             }
         }
@@ -57,14 +84,15 @@ const CameraRig = ({ viewMode }: { viewMode: 'default' | 'gift' | 'memory' }) =>
     return null
 }
 
-const Experience = () => {
+const Experience = ({ started }: { started: boolean }) => {
     const [viewMode, setViewMode] = useState<'default' | 'gift' | 'memory'>('default')
 
     return (
         <>
-            <color attach="background" args={['#050510']} /> {/* Deep dark blue/black */}
+            {/* Romantic Deep Background */}
+            <color attach="background" args={['#180510']} />
 
-            <CameraRig viewMode={viewMode} />
+            <CameraRig viewMode={viewMode} started={started} />
 
             <OrbitControls
                 makeDefault
@@ -76,22 +104,24 @@ const Experience = () => {
             />
             <Stats />
 
-            {/* Cinematic Lighting - Brightened */}
-            <ambientLight intensity={1.5} />
-            <pointLight position={[10, 10, 10]} intensity={2.5} color="#ffaaee" />
-            <pointLight position={[-10, 5, -10]} intensity={1.0} color="#aaeeff" /> {/* Added fill light */}
+            {/* Romantic Lighting - Warmer & Softer */}
+            <ambientLight intensity={0.8} color="#ffaadd" />
+            <pointLight position={[10, 10, 10]} intensity={2.0} color="#ff88aa" />
+            <pointLight position={[-10, 5, -10]} intensity={1.5} color="#d4aaff" />
+            <pointLight position={[0, -10, 5]} intensity={0.5} color="#ffaa00" /> {/* Underlighting */}
 
-            <StarField />
+            <StarField count={800} />
+            <HeartParticles count={40} />
 
             <GiftBox onOpen={(isOpen) => setViewMode(isOpen ? 'gift' : 'default')} />
             <FloatingMemories onFocus={(isFocused) => setViewMode(isFocused ? 'memory' : 'default')} />
 
-            {/* Post Processing for Glow - Optimized */}
+            {/* Post Processing for Glow */}
             <EffectComposer multisampling={0}>
                 <Bloom
-                    luminanceThreshold={0.6}
-                    intensity={0.8}
-                    radius={0.3}
+                    luminanceThreshold={0.5}
+                    intensity={1.0}
+                    radius={0.4}
                 />
             </EffectComposer>
         </>
