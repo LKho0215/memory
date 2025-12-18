@@ -9,9 +9,6 @@
     "vercel-build": "vite build",
     "preview": "vite preview"
   },
-  "engines": {
-    "node": ">=18 <21"
-  },
   "dependencies": {
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
