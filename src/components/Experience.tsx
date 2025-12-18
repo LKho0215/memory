@@ -84,6 +84,32 @@ const CameraRig = ({ viewMode, started }: { viewMode: 'default' | 'gift' | 'memo
     return null
 }
 
+const InteractiveLight = () => {
+    const lightRef = useRef<any>(null)
+    const { viewport, mouse } = useThree()
+
+    useFrame(() => {
+        if (lightRef.current) {
+            // Convert mouse (normalized -1 to 1) to viewport coordinates
+            const x = (mouse.x * viewport.width) / 2
+            const y = (mouse.y * viewport.height) / 2
+
+            // Mouse moves on a 2D plane, light hovers slightly in front
+            lightRef.current.position.set(x, y, 10)
+        }
+    })
+
+    return (
+        <pointLight
+            ref={lightRef}
+            distance={15}
+            decay={2}
+            intensity={2}
+            color="#ffeecc"
+        />
+    )
+}
+
 const Experience = ({ started }: { started: boolean }) => {
     const [viewMode, setViewMode] = useState<'default' | 'gift' | 'memory'>('default')
 
@@ -91,6 +117,8 @@ const Experience = ({ started }: { started: boolean }) => {
         <>
             {/* Romantic Deep Background */}
             <color attach="background" args={['#180510']} />
+
+            <InteractiveLight />
 
             <CameraRig viewMode={viewMode} started={started} />
 

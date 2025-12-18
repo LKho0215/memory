@@ -1,5 +1,5 @@
 import { useMemo, useState, useRef, useEffect } from 'react'
-import { Html, Float, Image as DreiImage } from '@react-three/drei'
+import { Html, Image as DreiImage, Line } from '@react-three/drei'
 import { Vector3, Euler, Matrix4, MathUtils, Group } from 'three'
 import { ThreeEvent, useFrame, useThree } from '@react-three/fiber'
 
@@ -33,7 +33,6 @@ interface MemoryCardProps {
 const MemoryCard = ({ position: initialPos, rotation: initialRot, index, onClick, active, hasActive, data }: MemoryCardProps) => {
     const groupRef = useRef<Group>(null)
     const [hovered, setHovered] = useState(false)
-    const { viewport } = useThree()
 
     // Animation Logic
     useFrame((state, delta) => {
@@ -166,8 +165,48 @@ const FloatingMemories = ({ onFocus }: FloatingMemoriesProps) => {
         })
     }, [])
 
+    // Calculate specific webs connecting nearby points to form a stable ball structure
+    const linePoints = useMemo(() => {
+        const points: Vector3[] = []
+        const vectorMemories = memories.map(m => new Vector3(...m.position))
+
+        // Connect each point to its 3 nearest neighbors
+        vectorMemories.forEach((current, i) => {
+            // Calculate distances to all others
+            const distances = vectorMemories.map((other, j) => ({
+                index: j,
+                dist: current.distanceTo(other)
+            })).filter(d => d.index !== i)
+
+            // Sort by distance
+            distances.sort((a, b) => a.dist - b.dist)
+
+            // Take closest 3
+            distances.slice(0, 3).forEach(d => {
+                // Avoid duplicate lines by only adding if current index < target index
+                // Or just add them all, Line segments handles it. 
+                // To prevent double drawing same line, we can check index.
+                if (i < d.index) {
+                    points.push(current)
+                    points.push(vectorMemories[d.index])
+                }
+            })
+        })
+        return points
+    }, [memories])
+
     return (
         <group>
+            {/* Constellation Lines - Web/Ball Structure */}
+            <Line
+                points={linePoints}
+                color="#ffaaee"
+                lineWidth={1}
+                opacity={0.2}
+                transparent
+                segments // Renders disjoint segments from pairs of points
+            />
+
             {memories.map((props, i) => (
                 <MemoryCard
                     key={i}
