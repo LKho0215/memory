@@ -1,4 +1,4 @@
-import { useMemo, useState, useRef, useEffect } from 'react'
+import { useMemo, useState, useRef } from 'react'
 import { Html, Image as DreiImage, Line } from '@react-three/drei'
 import { Vector3, Euler, Matrix4, MathUtils, Group } from 'three'
 import { ThreeEvent, useFrame, useThree } from '@react-three/fiber'
@@ -6,18 +6,18 @@ import { ThreeEvent, useFrame, useThree } from '@react-three/fiber'
 const MEMORY_COUNT = 10
 const RADIUS = 6
 
-// Sample Data (placeholder)
+// Sample Data (title only)
 const MEMORY_DATA = [
-    { title: "First Spark", description: "The moment we met. It felt like the stars aligned just for us.", image: "" },
-    { title: "Late Night Talks", description: "Talking until 3AM about everything and nothing. Time stood still.", image: "zaq.jpg" },
-    { title: "The Adventure", description: "That trip we took into the unknown. Just us against the world.", image: "" },
-    { title: "Quiet Moments", description: "Sitting in silence, comfortable and warm. No words needed.", image: "" },
-    { title: "Laughter", description: "The kind of laughter that hurts your stomach. Pure joy.", image: "" },
-    { title: "Support", description: "You were there when I fell, ready to pick me up.", image: "" },
-    { title: "Growth", description: "Watching each other change and become better versions of ourselves.", image: "" },
-    { title: "Dreams", description: "Sharing our wildest hopes for the future.", image: "" },
-    { title: "Home", description: "Realizing that home isn't a place, it's a person.", image: "" },
-    { title: "Forever", description: "Looking forward to a thousand more memories like these.", image: "" },
+    { title: "Our First Date", image: "first.jpg" },
+    { title: "Late Night Talks", image: "" },
+    { title: "The Adventure", image: "" },
+    { title: "Quiet Moments", image: "" },
+    { title: "Laughter", image: "" },
+    { title: "Support", image: "" },
+    { title: "Growth", image: "" },
+    { title: "Dreams", image: "" },
+    { title: "Home", image: "" },
+    { title: "Forever", image: "" },
 ]
 
 interface MemoryCardProps {
@@ -26,7 +26,7 @@ interface MemoryCardProps {
     index: number
     onClick: (index: number) => void
     active: boolean
-    hasActive: boolean // True if ANY card is active
+    hasActive: boolean
     data: typeof MEMORY_DATA[0]
 }
 
@@ -40,12 +40,10 @@ const MemoryCard = ({ position: initialPos, rotation: initialRot, index, onClick
             const t = delta * 4
 
             if (active) {
-                // Focus Position (Left side, close to camera, facing front)
-                // Camera is at (0, 0, 25). Placing card at Z=20 makes it 5 units away (very close).
-                // Shift X slightly left to offset the center.
-                const targetPos = new Vector3(-1.5, 0, 20)
+                // Focus Position - CENTERED for simplicity
+                const targetPos = new Vector3(0, 0, 20)
                 const targetRot = new Euler(0, 0, 0)
-                const targetScale = 2.0 // Significantly larger
+                const targetScale = 2.5 // Larger for focus
 
                 groupRef.current.position.lerp(targetPos, t)
                 groupRef.current.rotation.x = MathUtils.lerp(groupRef.current.rotation.x, targetRot.x, t)
@@ -82,53 +80,74 @@ const MemoryCard = ({ position: initialPos, rotation: initialRot, index, onClick
             >
                 <boxGeometry args={[1.5, 1, 0.05]} /> {/* Photo Frame Shape */}
                 <meshStandardMaterial
-                    color={active ? "#ffaa00" : (hovered ? "#ffffff" : "#cccccc")}
-                    roughness={0.2}
-                    metalness={0.5}
-                    emissive={active ? "#ffaa00" : "#000000"}
-                    emissiveIntensity={active ? 0.2 : 0}
+                    color={active ? "#ffaacc" : (hovered ? "#ffffff" : "#ffddee")}
+                    roughness={0.3}
+                    metalness={0.4}
+                    emissive={active ? "#ff88aa" : "#000000"}
+                    emissiveIntensity={active ? 0.3 : 0}
                 />
             </mesh>
 
-            {/* Image Placeholder */}
-            {data.image && (
+            {/* Image or Placeholder */}
+            {data.image ? (
                 <DreiImage
                     url={data.image}
                     position={[0, 0, 0.03]}
                     scale={[1.4, 0.9, 1]}
                 />
-            )}
-            {!data.image && (
-                // Placeholder grey plane if no image
+            ) : (
                 <mesh position={[0, 0, 0.03]}>
                     <planeGeometry args={[1.4, 0.9]} />
-                    <meshStandardMaterial color="#333" />
+                    <meshStandardMaterial color="#ffeeee" />
                 </mesh>
+            )}
+
+            {/* Title Label Below Card - Animated Entrance */}
+            {active && (
+                <Html position={[0, -0.6, 0]} center>
+                    <style>{`
+                        @keyframes bounceIn {
+                            0% { transform: scale(0) translateY(20px); opacity: 0; }
+                            60% { transform: scale(1.1) translateY(-5px); opacity: 1; }
+                            80% { transform: scale(0.95) translateY(2px); }
+                            100% { transform: scale(1) translateY(0); }
+                        }
+                        @keyframes floatHeart {
+                            0%, 100% { transform: translateY(0); }
+                            50% { transform: translateY(-3px); }
+                        }
+                    `}</style>
+                    <div style={{
+                        fontFamily: "'Great Vibes', cursive",
+                        fontSize: '2rem',
+                        color: '#ffddee',
+                        textShadow: `
+                            0 0 10px rgba(255, 150, 200, 0.9),
+                            0 0 20px rgba(255, 100, 150, 0.6),
+                            0 2px 0 rgba(200, 100, 150, 0.3)
+                        `,
+                        whiteSpace: 'nowrap',
+                        textAlign: 'center',
+                        pointerEvents: 'none',
+                        animation: 'bounceIn 0.6s ease-out'
+                    }}>
+                        💕 {data.title} 💕
+                    </div>
+                    <div style={{
+                        fontFamily: "'Playfair Display', serif",
+                        fontSize: '0.75rem',
+                        color: '#ccaabb',
+                        marginTop: '10px',
+                        textAlign: 'center',
+                        letterSpacing: '2px',
+                        animation: 'floatHeart 2s ease-in-out infinite'
+                    }}>
+                        ✨ TAP TO CLOSE ✨
+                    </div>
+                </Html>
             )}
         </group>
     )
-}
-
-// Typing Effect Component
-const TypewriterText = ({ text, active }: { text: string, active: boolean }) => {
-    const [displayedText, setDisplayedText] = useState('')
-
-    useEffect(() => {
-        if (active) {
-            let i = 0
-            setDisplayedText('')
-            const interval = setInterval(() => {
-                setDisplayedText(text.slice(0, i + 1))
-                i++
-                if (i > text.length) clearInterval(interval)
-            }, 100) // Speed of typing
-            return () => clearInterval(interval)
-        } else {
-            setDisplayedText('')
-        }
-    }, [text, active])
-
-    return <span>{displayedText}</span>
 }
 
 interface FloatingMemoriesProps {
@@ -222,73 +241,6 @@ const FloatingMemories = ({ onFocus }: FloatingMemoriesProps) => {
                     }}
                 />
             ))}
-
-            {/* UI Overlay for Details */}
-            {activeIndex !== null && (
-                <Html fullscreen style={{ pointerEvents: 'none' }}>
-                    <div style={{
-                        position: 'absolute',
-                        top: '50%',
-                        right: '10%',
-                        transform: 'translateY(-50%)',
-                        width: '350px',
-                        padding: '2.5rem',
-                        background: 'rgba(20, 5, 10, 0.7)', // darker rose tint
-                        border: '1px solid rgba(255, 100, 150, 0.3)', // Pinkish gold border
-                        boxShadow: '0 0 30px rgba(255, 50, 100, 0.2)',
-                        backdropFilter: 'blur(12px)',
-                        borderRadius: '24px',
-                        color: 'white',
-                        fontFamily: "'Playfair Display', serif",
-                        textAlign: 'center', // Centered for more poetic feel
-                        pointerEvents: 'auto',
-                        animation: 'fadeInSlide 0.8s ease-out'
-                    }}>
-                        <style>{`
-                            @keyframes fadeInSlide {
-                                from { opacity: 0; transform: translate(30px, -50%); }
-                                to { opacity: 1; transform: translate(0, -50%); }
-                            }
-                        `}</style>
-                        <h2 style={{
-                            marginTop: 0,
-                            fontFamily: "'Great Vibes', cursive",
-                            color: '#ff99bb', // Soft Pink
-                            fontSize: '3.5rem',
-                            fontWeight: 'normal',
-                            marginBottom: '1rem',
-                            textShadow: '0 0 10px rgba(255, 100, 150, 0.5)'
-                        }}>
-                            {MEMORY_DATA[activeIndex % MEMORY_DATA.length].title}
-                        </h2>
-                        <div style={{
-                            width: '50px',
-                            height: '2px',
-                            background: 'linear-gradient(90deg, transparent, #ff99bb, transparent)',
-                            margin: '0 auto 1.5rem auto'
-                        }} />
-                        <p style={{
-                            lineHeight: '1.8',
-                            fontSize: '1.2rem',
-                            color: '#fff0f5',
-                            minHeight: '60px',
-                            fontStyle: 'italic'
-                        }}>
-                            "<TypewriterText text={MEMORY_DATA[activeIndex % MEMORY_DATA.length].description} active={true} />"
-                        </p>
-                        <div style={{
-                            marginTop: '2rem',
-                            fontSize: '0.9rem',
-                            color: '#aa8899',
-                            fontFamily: 'sans-serif',
-                            letterSpacing: '1px',
-                            textTransform: 'uppercase'
-                        }}>
-                            Click card to close
-                        </div>
-                    </div>
-                </Html>
-            )}
         </group>
     )
 }
