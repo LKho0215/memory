@@ -133,8 +133,18 @@ const GradientBackground = () => {
     )
 }
 
-const Experience = ({ started }: { started: boolean }) => {
+interface ExperienceProps {
+    started: boolean
+    onGiftOpen?: (isOpen: boolean) => void
+}
+
+const Experience = ({ started, onGiftOpen }: ExperienceProps) => {
     const [viewMode, setViewMode] = useState<'default' | 'gift' | 'memory'>('default')
+
+    const handleGiftOpen = (isOpen: boolean) => {
+        setViewMode(isOpen ? 'gift' : 'default')
+        onGiftOpen?.(isOpen)
+    }
 
     return (
         <>
@@ -163,7 +173,7 @@ const Experience = ({ started }: { started: boolean }) => {
             <SakuraPetals count={50} />
 
             {/* Scene Objects */}
-            <GiftBox onOpen={(isOpen) => setViewMode(isOpen ? 'gift' : 'default')} />
+            <GiftBox onOpen={handleGiftOpen} />
             <FloatingMemories onFocus={(isFocused) => setViewMode(isFocused ? 'memory' : 'default')} />
 
             {/* Enhanced Bloom for Cute Glow */}

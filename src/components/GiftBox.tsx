@@ -20,28 +20,20 @@ const GiftBox = ({ onOpen }: GiftBoxProps) => {
     useCursor(hovered)
 
     useFrame((state, delta) => {
-        // Bouncy Hover + Breathing Animation
+        // Always-on Cute Animation for Mobile
         if (boxRef.current) {
             const time = state.clock.elapsedTime
 
             // Breathing effect (gentle scale pulse)
-            const breathe = 1 + Math.sin(time * 2) * 0.02
+            const breathe = 1 + Math.sin(time * 2) * 0.03
 
-            // Hover bounce (spring-like wobble)
-            const targetScale = hovered ? 1.1 : 1.0
-            const currentScale = boxRef.current.scale.x / breathe
-            const newScale = MathUtils.lerp(currentScale, targetScale, delta * 8)
+            // Constant gentle scale
+            boxRef.current.scale.setScalar(breathe)
 
-            boxRef.current.scale.setScalar(newScale * breathe)
-
-            // Cute wobble on hover
-            if (hovered) {
-                boxRef.current.rotation.z = Math.sin(time * 8) * 0.05
-                boxRef.current.rotation.x = Math.cos(time * 6) * 0.03
-            } else {
-                boxRef.current.rotation.z = MathUtils.lerp(boxRef.current.rotation.z, 0, delta * 5)
-                boxRef.current.rotation.x = MathUtils.lerp(boxRef.current.rotation.x, 0, delta * 5)
-            }
+            // Always wobble gently (mobile-friendly - no hover needed)
+            boxRef.current.rotation.z = Math.sin(time * 3) * 0.04
+            boxRef.current.rotation.x = Math.cos(time * 2.5) * 0.025
+            boxRef.current.rotation.y = Math.sin(time * 1.5) * 0.02
         }
 
         // Animate Lid
@@ -62,10 +54,37 @@ const GiftBox = ({ onOpen }: GiftBoxProps) => {
         }
     })
 
+    // Cute gift open sound effect
+    const playGiftOpenSound = () => {
+        try {
+            const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+
+            // Play an ascending arpeggio - cute magical sound
+            const notes = [523, 659, 784, 1047] // C5, E5, G5, C6
+            notes.forEach((freq, i) => {
+                const osc = audioContext.createOscillator()
+                const gain = audioContext.createGain()
+                osc.connect(gain)
+                gain.connect(audioContext.destination)
+                osc.frequency.setValueAtTime(freq, audioContext.currentTime + i * 0.1)
+                osc.type = 'sine'
+                gain.gain.setValueAtTime(0.15, audioContext.currentTime + i * 0.1)
+                gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + i * 0.1 + 0.3)
+                osc.start(audioContext.currentTime + i * 0.1)
+                osc.stop(audioContext.currentTime + i * 0.1 + 0.3)
+            })
+        } catch (e) {
+            console.log('Gift sound failed:', e)
+        }
+    }
+
     const handleConfirmOpen = () => {
         const newState = !isOpen
         setIsOpen(newState)
         setShowConfirm(false)
+        if (newState) {
+            playGiftOpenSound()
+        }
         onOpen?.(newState)
     }
 

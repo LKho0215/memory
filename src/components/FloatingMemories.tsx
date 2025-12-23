@@ -41,7 +41,7 @@ const MemoryCard = ({ position: initialPos, rotation: initialRot, index, onClick
 
             if (active) {
                 // Focus Position - CENTERED for simplicity
-                const targetPos = new Vector3(0, 0, 20)
+                const targetPos = new Vector3(0, 0.4, 20)
                 const targetRot = new Euler(0, 0, 0)
                 const targetScale = 2.5 // Larger for focus
 
@@ -142,7 +142,7 @@ const MemoryCard = ({ position: initialPos, rotation: initialRot, index, onClick
                         letterSpacing: '2px',
                         animation: 'floatHeart 2s ease-in-out infinite'
                     }}>
-                        ✨ TAP TO CLOSE ✨
+                        TAP TO CLOSE
                     </div>
                 </Html>
             )}

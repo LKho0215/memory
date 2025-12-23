@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
 import Experience from './components/Experience'
+import RPGDialog from './components/RPGDialog'
 
 // const BACKGROUND_MUSIC_URL = "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=romantic-piano-11005.mp3"
 const BACKGROUND_MUSIC_URL = "bgm.mp3"
@@ -129,14 +130,40 @@ const BGMPlayer = ({ started }: { started: boolean }) => {
 
 function App() {
     const [started, setStarted] = useState(false)
+    const [showDialog, setShowDialog] = useState(false)
+    const dialogTimer = useRef<number | null>(null)
 
     const handleStart = () => {
         playSound('open')
         setStarted(true)
     }
 
+    const handleGiftOpen = (isOpen: boolean) => {
+        if (dialogTimer.current) {
+            clearTimeout(dialogTimer.current)
+            dialogTimer.current = null
+        }
+        if (isOpen) {
+            dialogTimer.current = setTimeout(() => {
+                setShowDialog(true)
+            }, 2000)
+        } else {
+            setShowDialog(false)
+        }
+    }
+
+    // Global tap sound - plays cute chime on every tap (except when dialog is showing)
+    const handleGlobalTap = () => {
+        if (started && !showDialog) {
+            playSound('click')
+        }
+    }
+
     return (
-        <div style={{ width: '100vw', height: '100vh', background: '#0a0008' }}>
+        <div
+            style={{ width: '100vw', height: '100vh', background: '#0a0008' }}
+            onClick={handleGlobalTap}
+        >
             <Canvas
                 dpr={[1, 1]}
                 gl={{ antialias: false, powerPreference: "high-performance", alpha: false }}
@@ -147,10 +174,16 @@ function App() {
                     position: [0, 0, 15]
                 }}
             >
-                <Experience started={started} />
+                <Experience started={started} onGiftOpen={handleGiftOpen} />
             </Canvas>
 
             <BGMPlayer started={started} />
+
+            {/* RPG Dialog - appears 2 seconds after gift opens */}
+            <RPGDialog
+                show={showDialog}
+                onComplete={() => setShowDialog(false)}
+            />
 
             {!started && (
                 <div style={{
