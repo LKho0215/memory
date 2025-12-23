@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 interface RPGDialogProps {
     show: boolean
@@ -8,13 +8,13 @@ interface RPGDialogProps {
 const CONVERSATIONS = [
     {
         character: "normal.png",
-        name: "???",
-        text: "Hey there! Welcome to this special place... I've been waiting for you! 💕"
+        name: "🐷",
+        text: "Hi, this is your virtual BB💕. Hope you like the little surprise I prepared for you!"
     },
     {
         character: "smile.png",
-        name: "???",
-        text: "I hope you enjoy all the memories we've collected together! Each one is precious to me~ ✨"
+        name: "🐷",
+        text: "Ehh, you really wait for gift from me? No gift here go claim from you real BB lah😜 AIYOOO"
     }
 ]
 
@@ -24,7 +24,24 @@ const RPGDialog = ({ show, onComplete }: RPGDialogProps) => {
     const [isTyping, setIsTyping] = useState(false)
     const [visible, setVisible] = useState(false)
 
+    // Audio ref for speak sound
+    const speakAudioRef = useRef<HTMLAudioElement | null>(null)
+
     const currentConvo = CONVERSATIONS[currentIndex]
+
+    // Initialize audio
+    useEffect(() => {
+        speakAudioRef.current = new Audio('speak.mp3')
+        speakAudioRef.current.loop = true
+        speakAudioRef.current.volume = 0.5
+
+        return () => {
+            if (speakAudioRef.current) {
+                speakAudioRef.current.pause()
+                speakAudioRef.current = null
+            }
+        }
+    }, [])
 
     // Fade in animation
     useEffect(() => {
@@ -35,7 +52,7 @@ const RPGDialog = ({ show, onComplete }: RPGDialogProps) => {
         }
     }, [show])
 
-    // Typewriter effect
+    // Typewriter effect with sound
     useEffect(() => {
         if (!visible || !currentConvo) return
 
@@ -44,17 +61,33 @@ const RPGDialog = ({ show, onComplete }: RPGDialogProps) => {
         let i = 0
         const text = currentConvo.text
 
+        // Start speak sound
+        if (speakAudioRef.current) {
+            speakAudioRef.current.currentTime = 0
+            speakAudioRef.current.play().catch(e => console.log('Speak sound failed:', e))
+        }
+
         const interval = setInterval(() => {
             if (i < text.length) {
                 setDisplayedText(text.slice(0, i + 1))
                 i++
             } else {
                 setIsTyping(false)
+                // Stop speak sound when done
+                if (speakAudioRef.current) {
+                    speakAudioRef.current.pause()
+                }
                 clearInterval(interval)
             }
         }, 40)
 
-        return () => clearInterval(interval)
+        return () => {
+            clearInterval(interval)
+            // Also stop sound on cleanup
+            if (speakAudioRef.current) {
+                speakAudioRef.current.pause()
+            }
+        }
     }, [currentIndex, visible])
 
     const handleTap = () => {
@@ -104,8 +137,8 @@ const RPGDialog = ({ show, onComplete }: RPGDialogProps) => {
 
             {/* Character Portrait - Left Side */}
             <div style={{
-                width: '400px',
-                height: '400px',
+                width: '300px',
+                height: '300px',
                 marginRight: '-30px',
                 zIndex: 3001,
                 display: 'flex',

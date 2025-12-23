@@ -4,7 +4,7 @@ import Experience from './components/Experience'
 import RPGDialog from './components/RPGDialog'
 
 // const BACKGROUND_MUSIC_URL = "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=romantic-piano-11005.mp3"
-const BACKGROUND_MUSIC_URL = "bgm.mp3"
+const BACKGROUND_MUSIC_URL = "bgm2.mp3"
 // Sound effects helper - plays cute sounds
 const playSound = (type: 'click' | 'sparkle' | 'open') => {
     // Using Web Audio API for simple tones
@@ -146,7 +146,7 @@ function App() {
         if (isOpen) {
             dialogTimer.current = setTimeout(() => {
                 setShowDialog(true)
-            }, 2000)
+            }, 1500)
         } else {
             setShowDialog(false)
         }
