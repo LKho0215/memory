@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
+import { Stats } from '@react-three/drei'
 import Experience from './components/Experience'
 import RPGDialog from './components/RPGDialog'
 
@@ -165,7 +166,7 @@ function App() {
             onClick={handleGlobalTap}
         >
             <Canvas
-                dpr={[1, 1]}
+                dpr={[1, 2]}
                 gl={{ antialias: false, powerPreference: "high-performance", alpha: false }}
                 camera={{
                     fov: 45,
@@ -174,6 +175,7 @@ function App() {
                     position: [0, 0, 15]
                 }}
             >
+                <Stats />
                 <Experience started={started} onGiftOpen={handleGiftOpen} />
             </Canvas>
 
@@ -248,4 +250,3 @@ function App() {
 }
 
 export default App
-
