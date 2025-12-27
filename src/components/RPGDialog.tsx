@@ -9,7 +9,7 @@ const CONVERSATIONS = [
     {
         character: "normal.png",
         name: "🐷",
-        text: "Hi, this is your virtual BB💕. Hope you like the little surprise I prepared for you!"
+        text: "Hi, this is your virtual BB💕. Hope you like the little surprise I prepared for you! Thanks for these sweet memories with you and me🥹. Ready for the gift? 3....2...1...!"
     },
     {
         character: "smile.png",

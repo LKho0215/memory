@@ -3,21 +3,23 @@ import { Html, Image as DreiImage, Line } from '@react-three/drei'
 import { Vector3, Euler, Matrix4, MathUtils, Group } from 'three'
 import { ThreeEvent, useFrame, useThree } from '@react-three/fiber'
 
-const MEMORY_COUNT = 10
+const MEMORY_COUNT = 25
 const RADIUS = 6
 
 // Sample Data (title only)
 const MEMORY_DATA = [
     { title: "Our First Date", image: "first.jpg" },
-    { title: "Late Night Talks", image: "" },
-    { title: "The Adventure", image: "" },
-    { title: "Quiet Moments", image: "" },
-    { title: "Laughter", image: "" },
-    { title: "Support", image: "" },
-    { title: "Growth", image: "" },
-    { title: "Dreams", image: "" },
-    { title: "Home", image: "" },
-    { title: "Forever", image: "" },
+    { title: "First ‘Photo Booth’", image: "6.jpg" },
+    { title: "First Picnic ", image: "5.jpg" },
+    { title: "First Making Cake Together", image: "4.jpg" },
+    { title: "First Nyonya Costume", image: "1.jpg" },
+    { title: "Apply facial mask", image: "14.jpg" },
+    { title: "Playing Game Together", image: "15.jpg" },
+    { title: "Neck Break", image: "9.jpg" },
+    { title: "Nice angle 1", image: "11.jpg" },
+    { title: "Nice angle 2", image: "12.jpg" },
+    { title: "0.0", image: "13.jpg" },
+    { title: "Huggggg", image: "8.jpg" },
 ]
 
 interface MemoryCardProps {
@@ -203,7 +205,7 @@ const FloatingMemories = ({ onFocus }: FloatingMemoriesProps) => {
             // Take closest 3
             distances.slice(0, 3).forEach(d => {
                 // Avoid duplicate lines by only adding if current index < target index
-                // Or just add them all, Line segments handles it. 
+                // Or just add them all, Line segments handles it.
                 // To prevent double drawing same line, we can check index.
                 if (i < d.index) {
                     points.push(current)
